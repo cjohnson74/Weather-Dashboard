@@ -10,3 +10,7 @@
     background: rgb(0,56,149);
     background: linear-gradient(90deg, rgba(0,56,149,1) 16%, rgba(19,4,101,1) 60%);
 }
+
+#forecast div div {
+    height: auto;
+}
