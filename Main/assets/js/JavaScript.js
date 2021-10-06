@@ -3,6 +3,7 @@ var apiKey = "2b2330fdc990767100b269866f403c79";
 var rootUrl = "https://api.openweathermap.org";
 
 var searchForm = document.querySelector("#search-form");
+var searchFormHistory = document.querySelectorAll("#submit-button-history")
 var searchInput = document.querySelector("#search-input");
 var currentWeather = document.querySelector("#today");
 var forecastWeather = document.querySelector("#forecast");
@@ -63,7 +64,7 @@ function getLatLong(event){
     city = searchInput.value.trim();
     var coordinatesUrl = rootUrl + "/geo/1.0/direct?q=" + city + "&limit=5&appid=" + apiKey;
     console.log(city);
-
+    addToHistory(city);
     fetch(coordinatesUrl)
         .then(function (response) {
             return response.json();
@@ -71,15 +72,29 @@ function getLatLong(event){
         .then(function(data) {
         console.log(data);
         console.log(data[0].lat, data[0].lon);
-        getWeather(data[0].lat, data[0].lon);
+        var cityObj = {latitude: "", longitude: ""}
+        var cityObj = {latitude: (data[0].lat), longitude: (data[0].lon)};
+        console.log(cityObj)
+        localStorage.setItem(city, JSON.stringify(cityObj));
+        getWeather(cityObj);
     }); 
 }
 
-function getLatLongHistory(event){
-    event.preventDefault();
-    console.log(event);
+$(".submit-button-history").click(function() {
+    var fired_button = $(this).text();
+    console.log($(this).text())
+    console.log(fired_button);
+    getLatLongHistory(fired_button);
+});
+
+function getLatLongHistory(location){
+    // event.preventDefault();
+    city = location;
     var coordinatesUrl = rootUrl + "/geo/1.0/direct?q=" + city + "&limit=5&appid=" + apiKey;
     console.log(city);
+
+    localStorage.getItem(city);
+    var cityObj = JSON.parse(localStorage.getItem(city));
 
     fetch(coordinatesUrl)
         .then(function (response) {
@@ -88,14 +103,14 @@ function getLatLongHistory(event){
         .then(function(data) {
         console.log(data);
         console.log(data[0].lat, data[0].lon);
-        getWeather(data[0].lat, data[0].lon);
+        getWeather(cityObj);
     });    
 }
 
-function getWeather(lat, lon){
+function getWeather({latitude, longitude}){
     console.log("inside getWeather() function")
-    console.log(lat, lon);
-    var weatherUrl = rootUrl + "/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
+    console.log(latitude, longitude);
+    var weatherUrl = rootUrl + "/data/2.5/onecall?lat=" + latitude + "&lon=" + longitude + "&appid=" + apiKey;
 
     currentWeather.innerHTML = "<section id='today' class='mt-3' role='region' aria-live='polite'></section>";
     day1.innerHTML = "<div id='day1' class='col-lg-12 text-white'></div>";
@@ -168,7 +183,6 @@ function getWeather(lat, lon){
         displayForecastDay3(dayTemp3, dayWind3, dayHum3);
         displayForecastDay4(dayTemp4, dayWind4, dayHum4);
         displayForecastDay5(dayTemp5, dayWind5, dayHum5);
-        addToHistory(city);
     });
   
 }
@@ -235,9 +249,16 @@ function displayForecastDay5(temp, wind, hum){
 }
 
 function addToHistory(location) {
-    $("#history").append("<button type='button' onClick='getLatLongHistory()' class='btn btn-secondary col-lg-12 rounded my-2 submit-button-history' id='" + city + "' aria-label='submit search'>" + location + "</button>")
-    // localStorage.setItem(JSON.stringify(location), JSON.stringify(localStorageValue));
-    // localStorageKey += 1;
+    var equalsTo = false;
+    for(var i = 0; i < localStorage.length; i++){
+        if (localStorage.key(i) == location) {
+            equalsTo = true;
+        }
+    }
+    if (!equalsTo) {
+        console.log("made it");
+        $("#history").append("<button type='button' onClick='getLatLongHistory(this.id)' class='btn btn-secondary col-lg-12 rounded my-2 submit-button-history' id='" + location + "' aria-label='submit search'>" + location + "</button>")
+    }
 }
 
 searchForm.addEventListener("submit", getLatLong);
