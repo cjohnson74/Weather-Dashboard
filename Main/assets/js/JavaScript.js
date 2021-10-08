@@ -57,6 +57,19 @@ var dayIcon5;
 // var dayUv4 = 0;
 // var dayUv5 = 0;
 var city;
+var equalsTo = false;
+
+for(var i = 0; i < localStorage.length; i++){
+    if (localStorage.key(i) == "SettingsPreferences" || localStorage.key(i) == "recentMovieSearches") {
+        equalsTo = true;
+    }
+    if (!equalsTo) {
+        console.log("made it");
+        console.log(location);
+        $("#history").append("<button type='button' onClick='getLatLongHistory(this.id)' class='btn btn-secondary col-lg-12 rounded my-2 submit-button-history' id='" + localStorage.key(i) + "' aria-label='submit search'>" + localStorage.key(i) + "</button>")
+    }
+}
+
 
 function getLatLong(event){
     event.preventDefault();
